@@ -35,10 +35,12 @@ Alternatively, you can install PHP 7.4 and it's modules using: <code>sudo apt in
 <hr>
 
 ### **APT SOURCES OUTPUT**
-<br>
+<br>  
+
 ![apt sources list](apt_sources_list.png "APT Sources List")
 <br>
 
 ### **PHP Version**
 <br>
+
 ![php version](php_version.png "PHP Version")

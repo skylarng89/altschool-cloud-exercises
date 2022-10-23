@@ -1,0 +1,44 @@
+---
+- name: Setup London Server
+  hosts: all
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: Check update
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Set server hostname
+      ansible.builtin.hostname:
+        name: node.london.local
+
+    - name: Set server timezone
+      community.general.timezone:
+        name: Africa/Lagos
+
+    - name: Install Apache
+      ansible.builtin.apt:
+        name: apache2
+        state: present
+
+    - name: Install software commons
+      ansible.builtin.apt:
+        name: lsb-release, ca-certificates, apt-transport-https, software-properties-common
+        state: present
+        update_cache: yes
+
+    - name: Add PHP 8.1 PPA
+      command: add-apt-repository ppa:ondrej/php -y
+
+    - name: Install PHP 8.1 and all modules
+      command: apt-get install -y php8.1 php8.1-cli php8.1-common php8.1-mysql php8.1-zip php8.1-gd php8.1-mbstring php8.1-curl php8.1-xml php8.1-bcmath
+
+    - name: Create info.php file
+      ansible.builtin.blockinfile:
+        path: /var/www/html/index.php
+        create: yes
+        marker: ""
+        block: |
+          <?php
+          echo date("F d, Y h:i:s A e", time());
+          ?>

@@ -54,28 +54,26 @@
   });*/</pre>
 - Grant folder permissions
   - ```chown -R www-data:www-data /var/www/miniapp```
-  - ```chmod -R 775 /var/www/miniapp```
-  - ```chmod -R 775 /var/www/miniapp/storage```
-  - ```chmod -R 775 /var/www/miniapp/bootstrap/cache```
+  - ```chmod -R 755 /var/www/miniapp```
+  - ```chmod -R 755 /var/www/miniapp/storage```
+  - ```chmod -R 755 /var/www/miniapp/bootstrap/cache```
 - Run migration: ```php artisan migrate --seed```
 - Configure Virtual Host: ```nano /etc/apache2/sites-available/miniapp.conf```
 <br>
 
 ```
 <VirtualHost *:80>
-    ServerAdmin hello@patrickaziken.me
-    ServerName miniapp.patrickaziken.me
-    ServerAlias *.patrickaziken.me
-    DocumentRoot /var/www/miniapp/public
-
-    <Directory /var/www/miniapp/public>
-        Options Indexes MultiViews
-        AllowOverride None
-        Require all granted
-    </Directory>
-
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
+     ServerAdmin onaziken@gmail.com
+     ServerName miniapp.patrickaziken.me
+     ServerAlias miniapp.patrickaziken.com
+     DocumentRoot /var/www/miniapp
+     <Directory /var/www/miniapp>
+         Options Indexes FollowSymLinks
+         AllowOverride All
+         Require all granted
+     </Directory>
+     ErrorLog ${APACHE_LOG_DIR}/error.log
+     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 ```
 - Enable mod_rewrite: ```a2enmod rewrite```
@@ -87,9 +85,6 @@
 ```
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  
-  RewriteCond %{HTTPS} off
-  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
     
   RewriteCond %{REQUEST_URI} !^/public/
   RewriteCond %{REQUEST_FILENAME} !-d
@@ -108,3 +103,18 @@
     - ```snap install --classic certbot```
     - ```ln -s /snap/bin/certbot /usr/bin/certbot```
   - Install SSL to Apache and domains: ```certbot --apache --agree-tos --redirect -m hello@patrickaziken.me -d miniapp.patrickaziken.me```
+  - SSL Path: ```/etc/apache2/sites-available/miniapp-le-ssl.conf```<br>
+
+### **Final Output - Laravel Frontend**<br>
+<br>
+
+![Laravel Frontend](./images/laravel_frontend.png "Laravel Frontend")
+
+<br>
+
+### **Articles API JSON Response**<br>
+<br>
+
+![Articles API JSON Response](./images/articles_api_output.png "Articles API JSON Response")
+
+<br>

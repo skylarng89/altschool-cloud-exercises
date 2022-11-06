@@ -1,0 +1,520 @@
+---
+- name: Setting up Node 2 Droplet
+  hosts: web_server
+  remote_user: root
+  become: true
+  become_exe: /bin/bash
+
+
+  vars:
+    php8_fpm_and_mods:
+      - php8.1-fpm
+      - libapache2-mod-php8.1
+      - php8.1-cli
+      - php8.1-common
+      - php8.1-mysql
+      - php8.1-opcache
+      - php8.1-soap
+      - php8.1-zip
+      - php8.1-intl
+      - php8.1-bcmath
+      - php8.1-xml
+      - php8.1-xmlrpc
+      - php8.1-curl
+      - php8.1-gd
+      - php8.1-imagick
+      - php8.1-cli
+      - php8.1-dev
+      - php8.1-imap
+      - php8.1-mbstring
+    mysql_root_pass: "2Z!UiG42UR5ib$"
+    domain_name_host: 161.35.169.57\texamtwo.patrickaziken.me\texamtwo
+    server_name_host: 161.35.169.57\tnode2.patrickaziken.me\tnode2
+
+  tasks:
+    # Configure server settings
+    - name: Set Server Hostname
+      ansible.builtin.shell:
+        cmd: hostnamectl set-hostname node2.patrickaziken.me --static
+      changed_when: true
+      tags: play_this
+
+    # Set server timezone
+    - name: Set timezone
+      ansible.builtin.shell:
+        cmd: timedatectl set-timezone Africa/Lagos
+      changed_when: true
+      tags: play_this
+
+    # Add server hostname to hosts file
+    - name: Adding server name to /etc/hosts
+      ansible.builtin.shell:
+        cmd: echo '{{ server_name_host }}' >> /etc/hosts
+      changed_when: true
+      tags: play_this
+
+    # Add domain name to hosts file
+    - name: Adding domain name to /etc/hosts
+      ansible.builtin.shell:
+        cmd: echo '{{ domain_name_host }}' >> /etc/hosts
+      changed_when: true
+      tags: play_this
+
+    # Update cache and upgrade packages
+    - name: Update Cache
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: true
+      # tags: play_this
+
+    # Install Python PIP Module
+    - name: Install PIP
+      ansible.builtin.apt:
+        name:
+          - python3-pip
+      tags: play_this
+
+    # Install PyMySQL Module
+    - name: Install PyMySQL
+      ansible.builtin.command:
+        cmd: python3 -m pip install PyMySQL
+      changed_when: true
+      tags: play_this
+
+    # Install PIP Cryptography Module
+    - name: Install Crytography Module
+      ansible.builtin.command:
+        cmd: pip install cryptography
+      changed_when: true
+      tags: play_this
+
+    # Install Git Package
+    - name: Installing Git
+      ansible.builtin.apt:
+        name: git
+      tags: play_this
+
+    # Install PHP prerequisites
+    - name: Install PHP prerequisites
+      ansible.builtin.apt:
+        name:
+          - lsb-release
+          - ca-certificates
+          - apt-transport-https
+          - software-properties-common
+          - gnupg2
+          - curl
+          - wget
+          - debconf-utils
+          - libaio1
+        state: present
+      tags: play_this
+
+    # Install Apache Webserver
+    - name: Install Apache
+      ansible.builtin.apt:
+        name:
+          - apache2
+          - apache2-utils
+        state: present
+      tags: play_this
+
+    # Add PHP Ondreg Repository
+    - name: Add PHP APT Repo
+      ansible.builtin.apt_repository:
+        repo: ppa:ondrej/php
+        state: present
+      tags: play_this
+
+    # Update & Upgrade Cache
+    - name: Update Cache
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: true
+      tags: play_this
+
+    # Install PHP modules
+    - name: Install PHP 8 and modules
+      ansible.builtin.apt:
+        name: '{{ php8_fpm_and_mods }}'
+      tags: play_this
+
+    # Install Composer Package
+    - name: Donwloading composer
+      ansible.builtin.shell:
+        cmd: php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+      changed_when: true
+      tags: play_this
+    - name: Verifying Composer download
+      ansible.builtin.shell:
+        cmd: php -r "if (hash_file('sha384', 'composer-setup.php') === '55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+      changed_when: true
+      tags: play_this
+    - name: Setting up composer
+      ansible.builtin.shell:
+        cmd: php composer-setup.php
+      changed_when: true
+      tags: play_this
+    - name: Cleaning up composer setup
+      ansible.builtin.shell:
+        cmd: php -r "unlink('composer-setup.php');"
+      changed_when: true
+      tags: play_this
+    - name: Move Composer to global bin path
+      ansible.builtin.shell:
+        cmd: mv composer.phar /usr/local/bin/composer
+      changed_when: true
+      tags: play_this
+
+    # Unattended MySQL Installation
+    - name: Set MySQL Unattended Options
+      ansible.builtin.shell:
+        debconf-set-selections <<EOF
+        mysql-apt-config mysql-apt-config/select-server select mysql-8.0
+        "mysql-community-server mysql-community-server/root-pass password {{ mysql_root_pass }}"
+        "mysql-community-server mysql-community-server/re-root-pass password {{ mysql_root_pass }}"
+        EOF
+      changed_when: true
+      tags: play_this
+    - name: Download MySQL Package
+      ansible.builtin.shell:
+        wget --user-agent="Mozilla" -O /tmp/mysql-apt-config_0.8.24-1_all.deb https://dev.mysql.com/get/mysql-apt-config_0.8.24-1_all.deb
+      changed_when: true
+      tags: play_this
+    - name: Configure MySQL Package
+      ansible.builtin.shell:
+        sudo DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/mysql-apt-config_0.8.24-1_all.deb < /dev/null > /dev/null
+      changed_when: true
+      tags: play_this
+    - name: Update Cache
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: true
+      tags: play_this
+    - name: Install MySQL
+      ansible.builtin.shell:
+        cmd: sudo DEBIAN_FRONTEND=noninteractive apt-get install mysql-server mysql-client --assume-yes --force-yes < /dev/null > /dev/null
+      changed_when: true
+      tags: play_this
+
+    # Create MySQL database, user, grant privileges
+    - name: Create MySQL database
+      ansible.builtin.command:
+        cmd: 'mysql -ne "{{ item }}"'
+      with_items:
+        - CREATE DATABASE examtwodb;
+      changed_when: true
+      tags: play_this
+    - name: Create MySQL user
+      ansible.builtin.command:
+        cmd: 'mysql -ne "{{ item }}"'
+      with_items:
+        - CREATE USER 'examtwo'@'localhost' IDENTIFIED BY 'ExVmTwoPa$$22';
+      changed_when: true
+      tags: play_this
+    - name: Grant MySQL user database privileges
+      ansible.builtin.command:
+        cmd: 'mysql -ne "{{ item }}"'
+      with_items:
+        - GRANT ALL PRIVILEGES ON examtwodb.* TO 'examtwo'@'localhost';
+      changed_when: true
+      tags: play_this
+    - name: Reload privilege tables
+      ansible.builtin.command:
+        cmd: 'mysql -ne "{{ item }}"'
+      with_items:
+        - FLUSH PRIVILEGES;
+      changed_when: true
+      tags: play_this
+
+    # Install PostgreSQL via Bash Script
+    - name: Copy PGSQL script to Remote Droplet
+      ansible.builtin.copy:
+        src: /home/skylarng89/github/altschool-cloud-exercises/second_semester_exam/pgsql.sh
+        dest: /root
+        owner: root
+        group: root
+        mode: '0775'
+      changed_when: true
+      tags: play_this
+    - name: Execute Script
+      ansible.builtin.command:
+        cmd: bash /root/pgsql.sh
+      changed_when: true
+      tags: play_this
+
+    # Clone and setup Laravel project
+    - name: Cloning repository
+      ansible.builtin.git:
+        repo: https://github.com/f1amy/laravel-realworld-example-app.git
+        dest: /var/www/examtwo
+        version: 64e6efec5f01a89a5c4fad2fc641149e6672ef3b
+      tags: play_this
+    - name: Create Laravel Config Environment
+      ansible.builtin.copy:
+        dest: /var/www/examtwo/.env
+        content: |
+          APP_NAME="Semester Two Exam - Laravel"
+          APP_ENV=local
+          APP_KEY=
+          APP_DEBUG=true
+          APP_URL=https://examtwo.patrickaziken.me
+          APP_PORT=3000
+
+          LOG_CHANNEL=stack
+          LOG_DEPRECATIONS_CHANNEL=null
+          LOG_LEVEL=debug
+
+          DB_CONNECTION=mysql
+          DB_HOST=localhost
+          DB_PORT=3306
+          DB_DATABASE=examtwodb
+          DB_USERNAME=examtwo
+          DB_PASSWORD=ExVmTwoPa$$22
+
+          BROADCAST_DRIVER=log
+          CACHE_DRIVER=file
+          FILESYSTEM_DISK=local
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=file
+          SESSION_LIFETIME=120
+
+          MEMCACHED_HOST=127.0.0.1
+
+          REDIS_HOST=127.0.0.1
+          REDIS_PASSWORD=null
+          REDIS_PORT=6379
+
+          MAIL_MAILER=smtp
+          MAIL_HOST=mailhog
+          MAIL_PORT=1025
+          MAIL_USERNAME=null
+          MAIL_PASSWORD=null
+          MAIL_ENCRYPTION=null
+          MAIL_FROM_ADDRESS="hello@example.com"
+          MAIL_FROM_NAME="${APP_NAME}"
+
+          AWS_ACCESS_KEY_ID=
+          AWS_SECRET_ACCESS_KEY=
+          AWS_DEFAULT_REGION=us-east-1
+          AWS_BUCKET=
+          AWS_USE_PATH_STYLE_ENDPOINT=false
+
+          PUSHER_APP_ID=
+          PUSHER_APP_KEY=
+          PUSHER_APP_SECRET=
+          PUSHER_APP_CLUSTER=mt1
+
+          MIX_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+          MIX_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+
+          L5_SWAGGER_GENERATE_ALWAYS=true
+          SAIL_XDEBUG_MODE=develop,debug
+          SAIL_SKIP_CHECKS=true
+
+        mode: '0644'
+      tags: play_this
+
+    # Setup Laravel Frontend
+    - name: Add frontend route
+      ansible.builtin.blockinfile:
+        path: /var/www/examtwo/routes/web.php
+        marker: ""
+        block: |
+          Route::get('/', function () {
+            return view('welcome');
+          });
+      tags: play_this
+
+    # Set project owner and permissions
+    - name: Setting folder owner to root user
+      ansible.builtin.file:
+        path: /var/www/examtwo
+        owner: root
+        group: root
+        recurse: true
+      changed_when: true
+      tags: play_this
+    - name: Set 'examtwo' permissions
+      ansible.builtin.file:
+        path: /var/www/examtwo
+        mode: '0775'
+        recurse: true
+      changed_when: true
+      tags: play_this
+    - name: Set 'storage' permissions
+      ansible.builtin.file:
+        path: /var/www/examtwo/storage
+        mode: '0755'
+        recurse: true
+      changed_when: true
+      tags: play_this
+    - name: Set 'bootsrap/cache' permissions
+      ansible.builtin.file:
+        path: /var/www/examtwo/bootstrap/cache
+        mode: '0755'
+        recurse: true
+      changed_when: true
+      tags: play_this
+
+    # Setup htaccess directive
+    - name: Creating .htaccess file
+      ansible.builtin.copy:
+        dest: "/var/www/examtwo/.htaccess"
+        content: |
+          <IfModule mod_rewrite.c>
+            RewriteEngine On
+
+            RewriteCond %{REQUEST_URI} !^/public/
+            RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteCond %{REQUEST_FILENAME} !-f
+
+            RewriteRule ^(.*)$ /public/$1
+            RewriteRule ^(/)?$ public/index.php [L]
+          </IfModule>
+        owner: root
+        group: root
+        mode: '0644'
+      tags: play_this
+
+    # Run create-project
+    - name: Running create-project
+      ansible.builtin.shell:
+        cmd: cd /var/www/examtwo && composer create-project --no-interaction
+      environment:
+        COMPOSER_ALLOW_SUPERUSER: 1
+      changed_when: true
+      tags: play_this
+    - name: Execute migration
+      ansible.builtin.shell:
+        cmd: cd /var/www/examtwo && php artisan migrate --seed
+      changed_when: true
+      tags: play_this
+
+    # Create and setup virtual host
+    - name: Creating vhost file
+      ansible.builtin.copy:
+        dest: "/etc/apache2/sites-available/examtwo.conf"
+        content: |
+          <VirtualHost *:80>
+              ServerAdmin support@patrickaziken.me
+              ServerName examtwo.patrickaziken.me
+              ServerAlias examtwo.patrickaziken.me
+
+              DocumentRoot /var/www/examtwo/public
+
+              <Directory /var/www/examtwo/public>
+                  Options Indexes FollowSymLinks
+                  AllowOverride All
+                  Require all granted
+              </Directory>
+
+              ErrorLog ${APACHE_LOG_DIR}/error.log
+              CustomLog ${APACHE_LOG_DIR}/access.log combined
+          </VirtualHost>
+        mode: '0644'
+      tags: play_this
+    - name: Disable default Apache virtual host
+      ansible.builtin.shell:
+        cmd: a2dissite 000-default.conf
+      changed_when: true
+      tags: play_this
+    - name: Enable project virtal host
+      ansible.builtin.shell:
+        cmd: a2ensite examtwo.conf
+      changed_when: true
+      tags: play_this
+    - name: Enable Mod Rewrite
+      ansible.builtin.shell:
+        cmd: a2enmod rewrite
+      changed_when: true
+      tags: play_this
+    - name: Restart Apache
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
+      tags: play_this
+    - name: Setting folder owner to Apache user
+      ansible.builtin.file:
+        path: /var/www/examtwo
+        owner: www-data
+        group: www-data
+        recurse: true
+      changed_when: true
+      tags: play_this
+
+    # Firewall setup
+    - name: Installing UFW
+      ansible.builtin.apt:
+        name:
+          - ufw
+      changed_when: true
+      tags: play_this
+    - name: Allow OpenSSH
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+      changed_when: true
+      tags: play_this
+    - name: Allow Apache
+      community.general.ufw:
+        rule: allow
+        name: 'Apache Full'
+      changed_when: true
+      tags: play_this
+    - name: Allow to port 22
+      community.general.ufw:
+        rule: allow
+        port: '22'
+      changed_when: true
+      tags: play_this
+    - name: Allow to port 80
+      community.general.ufw:
+        rule: allow
+        port: '80'
+      changed_when: true
+      tags: play_this
+    - name: Allow to port 443
+      community.general.ufw:
+        rule: allow
+        port: '443'
+      changed_when: true
+      tags: play_this
+    - name: Enable Firewall
+      ansible.builtin.shell:
+        cmd: yes | sudo ufw enable
+      changed_when: true
+      tags: play_this
+
+    # Setup SSL using Let's Encrypt
+    - name: Installing Snapd
+      ansible.builtin.apt:
+        name:
+          - snapd
+      changed_when: true
+      tags: play_this
+    - name: Installing Snapd Core
+      ansible.builtin.shell:
+        cmd: snap install core
+      changed_when: true
+      tags: play_this
+    - name: Check Snapd Core Update
+      ansible.builtin.shell:
+        cmd: snap refresh core
+      changed_when: true
+      tags: play_this
+    - name: Installing Certbot
+      ansible.builtin.shell:
+        cmd: snap install --classic certbot
+      changed_when: true
+      tags: play_this
+    - name: Create Certbot Symlink
+      ansible.builtin.shell:
+        cmd: ln -s /snap/bin/certbot /usr/bin/certbot
+      changed_when: true
+      tags: play_this
+    - name: Issuing SSL Certificate
+      ansible.builtin.shell:
+        cmd: yes | certbot --apache --agree-tos --redirect -m support@patrickaziken.me -d examtwo.patrickaziken.me
+      changed_when: true
+      tags: play_this

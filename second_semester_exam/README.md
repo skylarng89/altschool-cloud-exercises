@@ -6,7 +6,7 @@
 2. Deploy PostgreSQL using Bash and execute it using Ansible. [View Script](pgsql.sh)
 <br><br>
 
-### Resource Stats<br>
+### Resource Stats & Security Overview<br>
 - Digital Ocean
   - Region: London 1
   - CPU: 1 Intel Premium vCPU
@@ -17,7 +17,18 @@
   - Private IP: 10.106.0.3
   - Operating System: Ubuntu 20.04 (LTS) x64
   - SSL Issuer: Let's Encrypt
+- Firewall Rules Set (UFW)
+  - Allowed:
+    - Port 22
+    - Port 80
+    - Port 443
+    - OpenSSH
+    - Apache Full
 <br><br>
+
+### How to Access Droplet
+- Open the [ssh_keys](./ssh_keys) folder to access the Private and Public keys required to connect to the Virtual Machines
+- Add the public and private ssh keys to your machine and connect via a terminal
 
 #### Deployment Preview - [View Online](https://examtwo.patrickaziken.me)
 <br>

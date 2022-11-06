@@ -65,7 +65,7 @@
 <VirtualHost *:80>
      ServerAdmin onaziken@gmail.com
      ServerName miniapp.patrickaziken.me
-     ServerAlias miniapp.patrickaziken.com
+     ServerAlias miniapp.patrickaziken.me
      DocumentRoot /var/www/miniapp
      <Directory /var/www/miniapp>
          Options Indexes FollowSymLinks

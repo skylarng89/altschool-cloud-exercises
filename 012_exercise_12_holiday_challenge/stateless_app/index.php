@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./assets/main.css">
+    <link rel="stylesheet preconnect"
+        href="https://res.cloudinary.com/upperloftctns/raw/upload/v1673065675/dev_assets/altschool_holiday_challenge_2022/main_ddunvj.css">
     <title>Server Stats</title>
 </head>
 

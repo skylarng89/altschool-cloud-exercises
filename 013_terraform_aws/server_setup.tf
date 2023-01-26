@@ -29,7 +29,7 @@ resource "aws_route_table" "altschool-ex13-rtable" {
 
   route {
     cidr_block = "10.0.1.0/24"
-    gateway_id = aws_internet_gateway.altschool-ex13.id
+    gateway_id = aws_internet_gateway.altschool-ex13-igw.id
   }
 
   tags = {

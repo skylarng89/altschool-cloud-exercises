@@ -6,7 +6,7 @@ resource "aws_route53_zone" "terraform-hosted-zone" {
   }
 }
 
-# Create terraform sub-domain 'A' record
+# Create sub-domain 'A' record
 resource "aws_route53_record" "terraform_domain" {
   zone_id = aws_route53_zone.terraform-hosted-zone.id
   name    = "terraform.${var.domain_name}"

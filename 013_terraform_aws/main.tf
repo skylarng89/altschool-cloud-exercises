@@ -5,7 +5,6 @@ provider "aws" {
   region     = "eu-west-2"
 }
 
-
 # Create EC2 instances
 resource "aws_instance" "altschool-ex13-server1" {
   ami               = "ami-00de6c6491fdd3ef5"
@@ -42,9 +41,8 @@ resource "aws_instance" "altschool-ex13-server3" {
 }
 
 
-# Export for Ansible into a document by Adeoluwa
-# you can write the document however you choose but this is the resource to create and put things in a document
-# Exporting the IP Addresses from the EC2 Instances in a file name 'host-inventory'
+
+# Exporting the IP Addresses from the EC2 Instances in a file
 resource "local_file" "host-inventory" {
   content = <<-DOC
     [webservers]

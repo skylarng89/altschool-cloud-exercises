@@ -1,7 +1,6 @@
 # Variables
 variable "domain_name" {
-  default     = "patrickaziken.me"
-  type        = string
+  type        = map(string)
   description = "Terraform sub-domain"
 }
 

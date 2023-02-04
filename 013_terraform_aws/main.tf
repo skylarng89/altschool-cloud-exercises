@@ -54,7 +54,5 @@ resource "local_file" "host-inventory" {
     ansible_ssh port=22
     DOC
 
-  filename             = "/ansible/hosts"
-  directory_permission = "0755"
-  file_permission      = "0775"
+  filename = "./ansible/hosts"
 }

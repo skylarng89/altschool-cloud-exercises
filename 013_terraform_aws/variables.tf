@@ -1,5 +1,5 @@
 # Variables
-variable "domain_name" {
+variable "domain_names" {
   type        = map(string)
   description = "Terraform sub-domain"
 }

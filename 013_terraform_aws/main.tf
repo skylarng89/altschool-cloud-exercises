@@ -40,8 +40,6 @@ resource "aws_instance" "altschool-ex13-server3" {
   }
 }
 
-
-
 # Exporting the IP Addresses from the EC2 Instances in a file
 resource "local_file" "host-inventory" {
   content = <<-DOC
@@ -56,5 +54,5 @@ resource "local_file" "host-inventory" {
     ansible_ssh port=22
     DOC
 
-  filename = "/ansible/host-inventory"
+  filename = "/ansible/hosts"
 }

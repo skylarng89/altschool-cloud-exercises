@@ -1,0 +1,23 @@
+# Ignore Terraform state files and directories
+*.tfstate
+*.tfstate.*
+
+# Ignore any .tfvars files that may contain sensitive information
+*.tfvars
+
+# Ignore override files as they are usually used to store secrets
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore CLI configuration files that may contain sensitive credentials
+.terraformrc
+terraform.rc
+
+# Ignore .terraform directory that contains downloaded provider plugins
+.terraform/
+
+# Ignore any file or directory that ends with "_secret" or "_key"
+*_secret
+*_key
